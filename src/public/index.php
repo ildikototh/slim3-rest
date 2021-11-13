@@ -7,7 +7,7 @@ require '../../vendor/autoload.php';
 $config['displayErrorDetails'] = true;
 $config['addContentLengthHeader'] = false;
 
-$config['db']['host']   = 'localhost';
+$config['db']['host']   = '127.0.0.1';
 $config['db']['user']   = 'user';
 $config['db']['pass']   = 'password';
 $config['db']['dbname'] = 'test';
@@ -31,23 +31,24 @@ $container['db'] = function ($c) {
     return $pdo;
 };
 
-$app->get('/books', function() {
+$app->get('/books', function(Request $request, Response $response) {
     $sth = $this->db->prepare("select * from library order by book_id");
     $sth->execute();
-    $result = $sth->fetchAll(PDO::FETCH_OBJ);
-     var_dump($result);
-     while( $row = $result->fetch(PDO::FETCH_ASSOC) ) {
+     while( $row = $sth->fetch(PDO::FETCH_ASSOC) ) {
         $books[] = $row; // appends each row to the array
       }
-      return $books;
+      return $response->withJson([
+        'data' => $books ? $books : []
+    ], 200);
+     
    });
 
 $app->get('/tickets', function (Request $request, Response $response) {
   
     $tickets = array('name' => 'Bob', 'age' => 40);
-    $newResponse = $response->withJson($tickets);
-    // $response->getBody()->write(var_export($tickets, true));
-    return $newResponse;
+    return $response->withJson([
+        'data' => $tickets ? $tickets : []
+    ], 200);
 });
 
 
