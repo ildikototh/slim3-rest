@@ -47,18 +47,19 @@ $app->get('/book/[{id}]', function ($request, $response, $args) {
     $sth = $this->db->prepare("SELECT * FROM library WHERE book_id=:book_id");
     $sth->bindParam("book_id", $args['id']);
     $sth->execute();
-    $books = $sth->fetchObject();
+    $book = $sth->fetchObject();
     return $this->response->withJson(['data' => $book ? $book : [] ], 200);
 });
 
 // Konyv keresese megadott parameterek alapjan
 $app->get('/book/search/[{query}]', function ($request, $response, $args) {
-    $sth = $this->db->prepare("SELECT * FROM library WHERE UPPER(name) LIKE :query ORDER BY book_name");
+    $sth = $this->db->prepare("SELECT * FROM library WHERE UPPER(book_name) LIKE :query ORDER BY book_name");
     $query = "%".$args['query']."%";
     $sth->bindParam("query", $query);
+    var_dump($sth);
     $sth->execute();
-    $boks = $sth->fetchAll();
-        return $this->response->withJson($books);
+    $books = $sth->fetchAll();
+    return $this->response->withJson($books);
 });
         
 // Uj konyv hozzadasa
@@ -122,6 +123,4 @@ $app->get('/hello/{name}', function (Request $request, Response $response, array
     $response->getBody()->write("Hello, $name");
     return $response;
 });
-
 $app->run();
-
